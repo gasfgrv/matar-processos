@@ -4,24 +4,26 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Logger;
+
+import static java.lang.Integer.parseInt;
 
 public class ProcessosController {
-	public ProcessosController() {
-		super();
-	}
+	private static final Logger LOGGER = Logger.getLogger(ProcessosController.class.getName());
+	private static final boolean WINDOWS = System.getProperty("os.name").contains("Windows");
+	private static final boolean LINUX = System.getProperty("os.name").contains("Linux");
 
-	public String getOS() {
-		return System.getProperty("os.name").toString();
-	}
 
-	public String listarProcessos(String so) {
+	public String listarProcessos() {
 		String comando = null;
-		String saida="";
-		if (so.contains("Windows")) {
+		StringBuilder saida= new StringBuilder();
+
+		if (WINDOWS) {
 			comando = "TASKLIST /FO TABLE";
-		} else if (so.contains("Linux")) {
+		} else if (LINUX) {
 			comando = "ps -A";
 		}
+
 		try {
 			Process processo = Runtime.getRuntime().exec(comando);
 			InputStream stream = processo.getInputStream();
@@ -29,31 +31,31 @@ public class ProcessosController {
 			BufferedReader buffer = new BufferedReader(reader);
 			String linha = buffer.readLine();
 			while (linha != null) {
-				saida += linha + "\n";
+				saida.append(linha).append("\n");
 				linha = buffer.readLine();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		return saida;
+		return saida.toString();
 	}
 
-	public void matarPID(String so, String pid) {
+	public void matarPID(String pid) {
 		String cmdPid = null;
-		if (so.contains("Windows")) {
+		if (WINDOWS) {
 			cmdPid = "TASKKILL /PID ";
-		} else if (so.contains("Linux")) {
+		} else if (LINUX) {
 			cmdPid = "kill -9 ";
 		}
 		mataProcesso(cmdPid + pid);
 	}
 
-	public void matarNome(String so, String nome) {
+	public void matarNome(String nome) {
 		String cmdNome = null;
-		if (so.contains("Windows")) {
+		if (WINDOWS) {
 			cmdNome = "TASKKILL /IM ";
-		} else if (so.contains("Linux")) {
+		} else if (LINUX) {
 			cmdNome = "killall -9 ";
 		}
 		mataProcesso(cmdNome + nome);
@@ -63,13 +65,13 @@ public class ProcessosController {
 		try {
 			Runtime.getRuntime().exec(comando);
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
+			LOGGER.warning(e.getMessage());
 		}
 	}
 
 	public boolean isNumeric(String input) {
 		try {
-			Integer.parseInt(input);
+			parseInt(input);
 			return true;
 		} catch (NumberFormatException e) {
 			return false;
