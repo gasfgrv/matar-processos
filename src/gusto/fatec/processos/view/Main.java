@@ -2,7 +2,10 @@ package gusto.fatec.processos.view;
 
 import gusto.fatec.processos.controller.ProcessosController;
 
-import static javax.swing.JOptionPane.*;
+import static javax.swing.JOptionPane.PLAIN_MESSAGE;
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.showInputDialog;
+import static javax.swing.JOptionPane.showMessageDialog;
 
 public class Main {
     public static void main(String[] args) {
@@ -13,20 +16,23 @@ public class Main {
 
         while (!opc.equals("9")) {
             switch (opc) {
-                case "1":
+                case "1": {
                     matarPorPid(pc);
                     System.exit(0);
                     break;
-                case "2":
+                }
+                case "2": {
                     matarProcessoPorNome(pc);
                     System.exit(0);
                     break;
-                default:
+                }
+                default: {
                     showMessageDialog(null,
                             "Opção inválida",
                             "Erro",
                             WARNING_MESSAGE);
                     break;
+                }
             }
         }
 

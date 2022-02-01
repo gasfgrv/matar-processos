@@ -1,81 +1,65 @@
 package gusto.fatec.processos.controller;
 
+import gusto.fatec.processos.model.OSEnum;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
-import static java.lang.Integer.parseInt;
-
 public class ProcessosController {
-	private static final Logger LOGGER = Logger.getLogger(ProcessosController.class.getName());
-	private static final boolean WINDOWS = System.getProperty("os.name").contains("Windows");
-	private static final boolean LINUX = System.getProperty("os.name").contains("Linux");
 
+    private static final Logger LOGGER = Logger.getLogger(ProcessosController.class.getName());
 
-	public String listarProcessos() {
-		String comando = null;
-		StringBuilder saida= new StringBuilder();
+    public void listarProcessos() {
+        StringBuilder saida = new StringBuilder();
+        String comando = OSEnum.getOS().listarProcessos();
 
-		if (WINDOWS) {
-			comando = "TASKLIST /FO TABLE";
-		} else if (LINUX) {
-			comando = "ps -A";
-		}
+        try {
+            Process processo = Runtime.getRuntime().exec(comando);
+            InputStream stream = processo.getInputStream();
+            InputStreamReader reader = new InputStreamReader(stream);
+            BufferedReader buffer = new BufferedReader(reader);
+            String linha = buffer.readLine();
 
-		try {
-			Process processo = Runtime.getRuntime().exec(comando);
-			InputStream stream = processo.getInputStream();
-			InputStreamReader reader = new InputStreamReader(stream);
-			BufferedReader buffer = new BufferedReader(reader);
-			String linha = buffer.readLine();
-			while (linha != null) {
-				saida.append(linha).append("\n");
-				linha = buffer.readLine();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return saida.toString();
-	}
+            while (linha != null) {
+                saida.append(linha).append("\n");
+                linha = buffer.readLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-	public void matarPID(String pid) {
-		String cmdPid = null;
-		if (WINDOWS) {
-			cmdPid = "TASKKILL /PID ";
-		} else if (LINUX) {
-			cmdPid = "kill -9 ";
-		}
-		mataProcesso(cmdPid + pid);
-	}
+        String msg = saida.toString();
+        LOGGER.info(msg);
+    }
 
-	public void matarNome(String nome) {
-		String cmdNome = null;
-		if (WINDOWS) {
-			cmdNome = "TASKKILL /IM ";
-		} else if (LINUX) {
-			cmdNome = "killall -9 ";
-		}
-		mataProcesso(cmdNome + nome);
-	}
+    public void matarPID(String pid) {
+        String cmdPid = OSEnum.getOS().matarPID();
+        mataProcesso(cmdPid + pid);
+    }
 
-	private void mataProcesso(String comando) {
-		try {
-			Runtime.getRuntime().exec(comando);
-		} catch (IOException e) {
-			LOGGER.warning(e.getMessage());
-		}
-	}
+    public void matarNome(String nome) {
+        String cmdNome = OSEnum.getOS().matarNome();
+        mataProcesso(cmdNome + nome);
+    }
 
-	public boolean isNumeric(String input) {
-		try {
-			parseInt(input);
-			return true;
-		} catch (NumberFormatException e) {
-			return false;
-		}
-	}
+    private void mataProcesso(String comando) {
+        try {
+            Runtime.getRuntime().exec(comando);
+        } catch (IOException e) {
+            LOGGER.warning(e.getMessage());
+        }
+    }
+
+    public boolean isNumeric(String input) {
+        try {
+            Integer.parseInt(input);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 
 }
