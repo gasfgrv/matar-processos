@@ -1,6 +1,7 @@
 package gusto.fatec.processos.view;
 
 import gusto.fatec.processos.controller.ProcessosController;
+import gusto.fatec.processos.model.OSEnum;
 
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
@@ -10,7 +11,7 @@ import static javax.swing.JOptionPane.showMessageDialog;
 public class Main {
     public static void main(String[] args) {
         ProcessosController pc = new ProcessosController();
-        pc.listarProcessos();
+        pc.listarProcessos(OSEnum.getOS());
 
         String opc = showInputDialog("Opção Inválida\n1 - Matar Processo (PID)\n2 - Matar Processo (nome)\n9 - Sair");
 
@@ -47,7 +48,7 @@ public class Main {
             isNumeric = pc.isNumeric(pid);
         }
 
-        pc.matarPID(pid);
+        pc.matarPID(OSEnum.getOS(), pid);
         showMessageDialog(null,
                 "Processo Encerrado",
                 "Feito",
@@ -56,7 +57,7 @@ public class Main {
 
     private static void matarProcessoPorNome(ProcessosController pc) {
         String nome = showInputDialog("Nome");
-        pc.matarNome(nome);
+        pc.matarNome(OSEnum.getOS(), nome);
         showMessageDialog(null,
                 "Processo Encerrado",
                 "Feito",
